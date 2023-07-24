@@ -70,6 +70,13 @@ func (c *Compiler) parseQuery(stmt ast.Node, src string, o opts.Parser) (*Query,
 	if err := validate.In(c.catalog, raw); err != nil {
 		return nil, err
 	}
+
+	var viewEdits []source.Edit
+	raw, viewEdits, err = rewrite.MemoryViews(raw, c.catalog)
+	if err != nil {
+		return nil, err
+	}
+
 	name, cmd, err := metadata.Parse(strings.TrimSpace(rawSQL), c.parser.CommentSyntax())
 	if err != nil {
 		return nil, err
@@ -109,6 +116,7 @@ func (c *Compiler) parseQuery(stmt ast.Node, src string, o opts.Parser) (*Query,
 		return nil, err
 	}
 	edits = append(edits, expandEdits...)
+	edits = append(edits, viewEdits...)
 	expanded, err := source.Mutate(rawSQL, edits)
 	if err != nil {
 		return nil, err

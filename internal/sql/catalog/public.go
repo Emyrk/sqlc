@@ -131,3 +131,13 @@ func (c *Catalog) GetTable(rel *ast.TableName) (Table, error) {
 		return *table, err
 	}
 }
+
+func (c *Catalog) GetView(rel *ast.TableName) (View, error) {
+	_, view, err := c.getView(rel)
+	if view == nil {
+		return View{}, err
+	} else {
+		return *view, err
+	}
+}
+

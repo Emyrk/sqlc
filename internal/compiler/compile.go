@@ -77,6 +77,18 @@ func (c *Compiler) parseQueries(o opts.Parser) (*Result, error) {
 			continue
 		}
 		for _, stmt := range stmts {
+			if vs, ok := stmt.Raw.Stmt.(*ast.ViewStmt); ok {
+				err := c.Catalog().MemoryView(vs, src[stmt.Raw.StmtLocation:stmt.Raw.StmtLocation+stmt.Raw.StmtLen], c)
+				if err != nil {
+					var e *sqlerr.Error
+					loc := stmt.Raw.Pos()
+					if errors.As(err, &e) && e.Location != 0 {
+						loc = e.Location
+					}
+					merr.Add(filename, src, loc, err)
+				}
+				continue
+			}
 			query, err := c.parseQuery(stmt.Raw, src, o)
 			if err == ErrUnsupportedStatementType {
 				continue

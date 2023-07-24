@@ -1,0 +1,13 @@
+version: '2'
+sql:
+  - schema: postgresql/schema.sql
+    queries: postgresql/query.sql
+    engine: postgresql
+    database:
+      uri: postgresql://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/authors
+    rules:
+      - sqlc/db-prepare
+    gen:
+      go:
+        package: authors
+        out: postgresql

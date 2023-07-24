@@ -155,7 +155,13 @@ func pluginCatalog(c *catalog.Catalog) *plugin.Catalog {
 			}
 		}
 		var tables []*plugin.Table
-		for _, t := range s.Tables {
+		allTables := s.Tables
+		for _, v := range s.MemoryViews {
+			v := v
+			allTables = append(allTables, &v.Table)
+		}
+
+		for _, t := range allTables {
 			var columns []*plugin.Column
 			for _, c := range t.Columns {
 				l := -1

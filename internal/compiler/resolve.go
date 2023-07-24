@@ -257,7 +257,6 @@ func (comp *Compiler) resolveCatalogRefs(qc *QueryCatalog, rvs []*ast.RangeVar, 
 				}
 			}
 
-
 			for _, table := range tables {
 				schema := table.Schema
 				if schema == "" {

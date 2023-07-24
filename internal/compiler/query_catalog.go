@@ -70,7 +70,11 @@ func (qc QueryCatalog) GetTable(rel *ast.TableName) (*Table, error) {
 	}
 	src, err := qc.catalog.GetTable(rel)
 	if err != nil {
-		return nil, err
+		if view, viewErr := qc.catalog.GetView(rel); viewErr == nil {
+			src = view.Table
+		} else {
+			return nil, err
+		}
 	}
 	var cols []*Column
 	for _, c := range src.Columns {

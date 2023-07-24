@@ -10,10 +10,11 @@ import (
 
 // Schema describes how the data in a relational database may relate to other tables or other data models
 type Schema struct {
-	Name   string
-	Tables []*Table
-	Types  []Type
-	Funcs  []*Function
+	Name        string
+	MemoryViews []*View
+	Tables      []*Table
+	Types       []Type
+	Funcs       []*Function
 
 	Comment string
 }
@@ -65,6 +66,15 @@ func (s *Schema) getTable(rel *ast.TableName) (*Table, int, error) {
 	for i := range s.Tables {
 		if s.Tables[i].Rel.Name == rel.Name {
 			return s.Tables[i], i, nil
+		}
+	}
+	return nil, -1, sqlerr.RelationNotFound(rel.Name)
+}
+
+func (s *Schema) getView(rel *ast.TableName) (*View, int, error) {
+	for i := range s.MemoryViews {
+		if s.MemoryViews[i].Table.Rel.Name == rel.Name {
+			return s.MemoryViews[i], i, nil
 		}
 	}
 	return nil, -1, sqlerr.RelationNotFound(rel.Name)

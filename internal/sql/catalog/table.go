@@ -139,6 +139,28 @@ func (c *Catalog) getTable(tableName *ast.TableName) (*Schema, *Table, error) {
 	return schema, table, nil
 }
 
+func (c *Catalog) getView(tableName *ast.TableName) (*Schema, *View, error) {
+	schemaName := tableName.Schema
+	if schemaName == "" {
+		schemaName = c.DefaultSchema
+	}
+	var schema *Schema
+	for i := range c.Schemas {
+		if c.Schemas[i].Name == schemaName {
+			schema = c.Schemas[i]
+			break
+		}
+	}
+	if schema == nil {
+		return nil, nil, sqlerr.SchemaNotFound(schemaName)
+	}
+	view, _, err := schema.getView(tableName)
+	if err != nil {
+		return nil, nil, err
+	}
+	return schema, view, nil
+}
+
 func isStmtImplemented(stmt *ast.AlterTableStmt) bool {
 	var implemented bool
 	for _, item := range stmt.Cmds.Items {
